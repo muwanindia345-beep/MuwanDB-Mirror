@@ -88,3 +88,6 @@ const styles = StyleSheet.create({
   quickIcon: { fontSize:28, marginBottom:8 },
   quickLabel: { color:'#fff', fontWeight:'700' },
 });
+// OTA import - top pe add karo manually
+// import { checkForUpdate } from '../utils/ota';
+// useEffect mein: checkForUpdate();
