@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Clipboard, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { getSession, clearSession } from '../storage/auth';
 
 export default function DashboardScreen({ navigation }) {
