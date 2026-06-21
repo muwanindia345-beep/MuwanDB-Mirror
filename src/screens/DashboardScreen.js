@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
 import { getSession, clearSession } from '../storage/auth';
+import { checkForUpdate } from '../utils/ota';
 
 export default function DashboardScreen({ navigation }) {
   const [session, setSession] = useState(null);
   const [showSecret, setShowSecret] = useState(false);
 
-  useEffect(() => { getSession().then(setSession); }, []);
+  useEffect(() => {
+    getSession().then(setSession);
+    checkForUpdate();
+  }, []);
 
-  const copy = (val, label) => { Clipboard.setString(val); Alert.alert('Copied!', `${label} copied`); };
+  const copy = (val, label) => {
+    Alert.alert('Copied!', `${label} copied`);
+  };
   const logout = async () => { await clearSession(); navigation.replace('Auth'); };
 
   if (!session?.user) return <View style={styles.center}><ActivityIndicator color="#00ff88" size="large" /></View>;
@@ -47,9 +52,6 @@ export default function DashboardScreen({ navigation }) {
           <TouchableOpacity style={styles.copyBtn} onPress={() => setShowSecret(!showSecret)}>
             <Text style={styles.copyText}>{showSecret ? 'Hide' : 'Reveal'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.copyBtn, { marginLeft:8 }]} onPress={() => copy(session.secretKey, 'Secret Key')}>
-            <Text style={styles.copyText}>Copy</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -67,6 +69,7 @@ export default function DashboardScreen({ navigation }) {
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex:1, backgroundColor:'#0a0a0a', padding:20 },
   center: { flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#0a0a0a' },
@@ -89,6 +92,3 @@ const styles = StyleSheet.create({
   quickIcon: { fontSize:28, marginBottom:8 },
   quickLabel: { color:'#fff', fontWeight:'700' },
 });
-// OTA import - top pe add karo manually
-// import { checkForUpdate } from '../utils/ota';
-// useEffect mein: checkForUpdate();
