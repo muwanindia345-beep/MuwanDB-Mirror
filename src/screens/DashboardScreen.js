@@ -35,7 +35,7 @@ export default function DashboardScreen({ navigation }) {
     if (!refreshPass) return Alert.alert('Error', 'Password required');
     setRefreshing(true);
     try {
-      const res = await authAPI.login(session.user.username, refreshPass);
+      const res = await authAPI.refreshKeys(session.user.username, refreshPass);
       const { anonKey, secretKey } = res.data;
       await saveSession(session.user, anonKey, secretKey);
       setSession(prev => ({ ...prev, anonKey, secretKey }));
