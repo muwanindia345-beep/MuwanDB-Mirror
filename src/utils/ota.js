@@ -1,6 +1,6 @@
 import { Alert, Linking } from 'react-native';
 
-const GITHUB_API = 'https://api.github.com/repos/muwanindia345-beep/MuwanDB-Mirror/releases/latest'\;
+const GITHUB_API = 'https://api.github.com/repos/muwanindia345-beep/MuwanDB-Mirror/releases/latest';
 const CURRENT_VERSION = '1.0.0';
 
 export const checkForUpdate = async () => {
