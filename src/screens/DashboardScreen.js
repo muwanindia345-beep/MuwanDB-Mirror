@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Clipboard } from 'react-native';
 import { getSession, clearSession, saveSession } from '../storage/auth';
 import { checkForUpdate } from '../utils/ota';
 import { connectWebSocket, disconnectWebSocket } from '../utils/wsSync';
@@ -26,6 +26,11 @@ export default function DashboardScreen({ navigation }) {
     });
   };
 
+  const copy = (val, label) => {
+    Clipboard.setString(val);
+    Alert.alert('Copied!', `${label} copied to clipboard`);
+  };
+
   const refreshKeys = async () => {
     if (!refreshPass) return Alert.alert('Error', 'Password required');
     setRefreshing(true);
@@ -49,9 +54,8 @@ export default function DashboardScreen({ navigation }) {
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 80 }}>
 
-      {/* Refresh Modal */}
       {showRefreshModal && (
         <View style={styles.modalOverlay}>
           <View style={styles.modal}>
@@ -73,8 +77,7 @@ export default function DashboardScreen({ navigation }) {
               <TouchableOpacity style={styles.modalConfirmBtn} onPress={refreshKeys} disabled={refreshing}>
                 {refreshing
                   ? <ActivityIndicator color="#000" size="small" />
-                  : <Text style={styles.modalConfirmText}>Confirm</Text>
-                }
+                  : <Text style={styles.modalConfirmText}>Confirm</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -120,6 +123,11 @@ export default function DashboardScreen({ navigation }) {
         </View>
         <Text style={styles.keyValue} numberOfLines={2}>{session.anonKey}</Text>
         <Text style={styles.keyDesc}>Use in frontend — RLS enforced</Text>
+        <View style={styles.btnRow}>
+          <TouchableOpacity style={styles.copyBtn} onPress={() => copy(session.anonKey, 'Anon Key')}>
+            <Text style={styles.copyText}>📋 Copy</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.keyCard}>
@@ -133,9 +141,14 @@ export default function DashboardScreen({ navigation }) {
           {showSecret ? session.secretKey : '••••••••••••••••••••'}
         </Text>
         <Text style={styles.keyDesc}>Never expose in frontend!</Text>
-        <TouchableOpacity style={styles.copyBtn} onPress={() => setShowSecret(!showSecret)}>
-          <Text style={styles.copyText}>{showSecret ? 'Hide' : 'Reveal'}</Text>
-        </TouchableOpacity>
+        <View style={styles.btnRow}>
+          <TouchableOpacity style={styles.copyBtn} onPress={() => setShowSecret(!showSecret)}>
+            <Text style={styles.copyText}>{showSecret ? '🙈 Hide' : '👁️ Reveal'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.copyBtn} onPress={() => copy(session.secretKey, 'Secret Key')}>
+            <Text style={styles.copyText}>📋 Copy</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <Text style={styles.sectionTitle}>QUICK ACCESS</Text>
@@ -149,6 +162,7 @@ export default function DashboardScreen({ navigation }) {
           <Text style={styles.quickLabel}>Settings</Text>
         </TouchableOpacity>
       </View>
+
     </ScrollView>
   );
 }
@@ -156,7 +170,7 @@ export default function DashboardScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex:1, backgroundColor:'#0a0a0a', padding:20 },
   center: { flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#0a0a0a' },
-  modalOverlay: { position:'absolute', top:0, left:0, right:0, bottom:0, backgroundColor:'rgba(0,0,0,0.8)', zIndex:100, justifyContent:'center', alignItems:'center', padding:20 },
+  modalOverlay: { position:'absolute', top:0, left:-20, right:-20, bottom:0, backgroundColor:'rgba(0,0,0,0.85)', zIndex:100, justifyContent:'center', alignItems:'center', padding:20 },
   modal: { backgroundColor:'#111', borderRadius:16, padding:24, width:'100%', borderWidth:1, borderColor:'#222' },
   modalIcon: { fontSize:32, textAlign:'center', marginBottom:8 },
   modalTitle: { color:'#fff', fontSize:18, fontWeight:'800', textAlign:'center', marginBottom:4 },
@@ -181,7 +195,7 @@ const styles = StyleSheet.create({
   dbLabel: { color:'#00ff88', fontSize:11, fontWeight:'700', letterSpacing:1 },
   dbName: { color:'#fff', fontSize:18, fontWeight:'700', marginTop:2 },
   keysHeader: { flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:12 },
-  sectionTitle: { color:'#555', fontSize:12, fontWeight:'700', letterSpacing:1 },
+  sectionTitle: { color:'#555', fontSize:12, fontWeight:'700', letterSpacing:1, marginBottom:12 },
   refreshBtn: { backgroundColor:'#1a1a1a', borderRadius:8, paddingHorizontal:12, paddingVertical:6, borderWidth:1, borderColor:'#2a2a2a' },
   refreshBtnText: { color:'#00ff88', fontSize:12, fontWeight:'600' },
   keyCard: { backgroundColor:'#111', borderRadius:12, padding:16, borderWidth:1, borderColor:'#222', marginBottom:12 },
@@ -192,10 +206,11 @@ const styles = StyleSheet.create({
   backendBadge: { backgroundColor:'#7c3aed22', borderRadius:6, paddingHorizontal:8, paddingVertical:3 },
   backendBadgeText: { color:'#7c3aed', fontSize:11, fontWeight:'700' },
   keyValue: { color:'#00ff88', fontFamily:'monospace', fontSize:11, marginBottom:6 },
-  keyDesc: { color:'#555', fontSize:11, marginBottom:8 },
-  copyBtn: { backgroundColor:'#1a1a1a', borderRadius:6, paddingHorizontal:12, paddingVertical:6, borderWidth:1, borderColor:'#2a2a2a', alignSelf:'flex-start' },
+  keyDesc: { color:'#555', fontSize:11, marginBottom:10 },
+  btnRow: { flexDirection:'row', gap:8 },
+  copyBtn: { backgroundColor:'#1a1a1a', borderRadius:6, paddingHorizontal:12, paddingVertical:6, borderWidth:1, borderColor:'#2a2a2a' },
   copyText: { color:'#fff', fontSize:12, fontWeight:'600' },
-  quickGrid: { flexDirection:'row', gap:12, marginBottom:30 },
+  quickGrid: { flexDirection:'row', gap:12 },
   quickBtn: { flex:1, backgroundColor:'#111', borderRadius:12, padding:20, alignItems:'center', borderWidth:1, borderColor:'#222' },
   quickIcon: { fontSize:28, marginBottom:8 },
   quickLabel: { color:'#fff', fontWeight:'700' },
