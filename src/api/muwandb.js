@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://muwandb-server-production.up.railway.app';
+const BASE_URL = 'https://muwandb-server-production.up.railway.app'\;
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -12,8 +12,6 @@ export const authAPI = {
     api.post('/auth/register', { username, password, dbName }),
   login: (username, password) =>
     api.post('/auth/login', { username, password }),
-  // Dedicated rotation endpoint — login no longer rotates keys (that was the bug).
-  // Use this ONLY for the explicit "Refresh Keys" action.
   refreshKeys: (username, password) =>
     api.post('/auth/refresh-keys', { username, password }, { headers: { 'x-source': 'app' } }),
   changePassword: (username, oldPassword, newPassword, secretKey) =>
@@ -27,8 +25,8 @@ export const authAPI = {
 };
 
 export const queryAPI = {
-  raw: (mql, apiKey) =>
-    api.post('/query/raw', { query: mql }, { headers: { 'x-api-key': apiKey } }),
+  raw: (mql, apiKey, dbPassword) =>
+    api.post('/query/raw', { query: mql, dbPassword }, { headers: { 'x-api-key': apiKey } }),
 };
 
 export default api;
